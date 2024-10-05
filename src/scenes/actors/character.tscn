@@ -1,0 +1,47 @@
+[gd_scene load_steps=5 format=3 uid="uid://bdvp7kclp3vib"]
+
+[ext_resource type="Script" path="res://src/scripts/actors/character.gd" id="1_8dmk8"]
+[ext_resource type="Texture2D" uid="uid://bfjvux7lbyafk" path="res://icon.svg" id="2_bfgks"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_r8hix"]
+radius = 62.0
+height = 126.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_q3ks1"]
+radius = 79.0
+height = 158.0
+
+[node name="Character" type="CharacterBody2D"]
+scale = Vector2(0.5, 0.5)
+script = ExtResource("1_8dmk8")
+SPEED = 300.0
+DECCEL = 250.0
+JUMP_VELOCITY = -400.0
+CHARGE_VELOCITY = 500.0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_bfgks")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_r8hix")
+
+[node name="HitBoxArea" type="Area2D" parent="."]
+
+[node name="HitBox" type="CollisionShape2D" parent="HitBoxArea"]
+shape = SubResource("CapsuleShape2D_q3ks1")
+
+[node name="StunTimer" type="Timer" parent="."]
+
+[node name="IFrameTimer" type="Timer" parent="."]
+wait_time = 0.5
+
+[node name="ChargeTimer" type="Timer" parent="."]
+wait_time = 0.5
+
+[node name="ChargeCooldownTimer" type="Timer" parent="."]
+wait_time = 0.3
+
+[connection signal="timeout" from="StunTimer" to="." method="_on_stun_timer_timeout"]
+[connection signal="timeout" from="IFrameTimer" to="." method="_on_i_frame_timer_timeout"]
+[connection signal="timeout" from="ChargeTimer" to="." method="_on_charge_timer_timeout"]
+[connection signal="timeout" from="ChargeCooldownTimer" to="." method="_on_charge_cooldown_timer_timeout"]
