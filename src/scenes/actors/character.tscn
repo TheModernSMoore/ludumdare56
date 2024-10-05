@@ -13,11 +13,17 @@ height = 158.0
 
 [node name="Character" type="CharacterBody2D"]
 scale = Vector2(0.5, 0.5)
+collision_layer = 4
+collision_mask = 5
 script = ExtResource("1_8dmk8")
 SPEED = 300.0
 DECCEL = 250.0
 JUMP_VELOCITY = -400.0
 CHARGE_VELOCITY = 500.0
+charge_cooldown = 0.5
+
+[node name="ThrowingSpot" type="Node2D" parent="."]
+position = Vector2(0, -64)
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("2_bfgks")
@@ -38,10 +44,13 @@ wait_time = 0.5
 [node name="ChargeTimer" type="Timer" parent="."]
 wait_time = 0.5
 
-[node name="ChargeCooldownTimer" type="Timer" parent="."]
-wait_time = 0.3
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="ChargeCooldownBar" type="ProgressBar" parent="CanvasLayer"]
+offset_left = 969.0
+offset_right = 1152.0
+offset_bottom = 27.0
 
 [connection signal="timeout" from="StunTimer" to="." method="_on_stun_timer_timeout"]
 [connection signal="timeout" from="IFrameTimer" to="." method="_on_i_frame_timer_timeout"]
 [connection signal="timeout" from="ChargeTimer" to="." method="_on_charge_timer_timeout"]
-[connection signal="timeout" from="ChargeCooldownTimer" to="." method="_on_charge_cooldown_timer_timeout"]

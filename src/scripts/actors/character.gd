@@ -1,14 +1,16 @@
-extends CharacterBody2D
+extends Thrower
+class_name Player
 
 
 @export var SPEED : float
 @export var DECCEL : float
 @export var JUMP_VELOCITY : float
 @export var CHARGE_VELOCITY : float
+@export var charge_cooldown : float
 
 @onready var hitbox = $HitBoxArea/HitBox
 @onready var charge_timer = $ChargeTimer
-@onready var charge_cooldown_timer = $ChargeCooldownTimer
+@onready var charge_cooldown_bar = $CanvasLayer/ChargeCooldownBar
 
 var _can_charge = true
 
@@ -17,9 +19,13 @@ var state : PlayerState = PlayerState.CHILL
 
 var _facing : Game.Direction = Game.Direction.RIGHT
 
+func _ready():
+	charge_cooldown_bar.value = charge_cooldown
+	charge_cooldown_bar.max_value = charge_cooldown
+	_holding_spot = $ThrowingSpot
 
 func _physics_process(delta: float) -> void:
-	
+	_update_cooldown(delta)
 	# Add the gravity.  This always happens.
 	if not is_on_floor():
 		velocity += get_gravity() * delta
@@ -66,6 +72,7 @@ func _handle_charge_action() -> void:
 		state = PlayerState.CHARGE
 		velocity.x = CHARGE_VELOCITY * _facing
 		charge_timer.start()
+		charge_cooldown_bar.value = 0
 	elif state == PlayerState.CHARGE:
 		_stop_charge()
 
@@ -73,20 +80,33 @@ func _on_charge_timer_timeout() -> void:
 	_stop_charge()
 
 func _stop_charge():
-	state = PlayerState.CHILL
+	if state == PlayerState.CHARGE:
+		state = PlayerState.CHILL
 	charge_timer.stop()
 	_can_charge = false
-	charge_cooldown_timer.start()
 
-func _on_charge_cooldown_timer_timeout() -> void:
-	_can_charge = true
+func _update_cooldown(delta : float):
+	if state != PlayerState.CHARGE:
+		charge_cooldown_bar.value += delta
+		if charge_cooldown_bar.value >= charge_cooldown:
+			_can_charge = true
 
 # End of Charge handling
 
+# Holding and throwing handling
+func can_pickup() -> bool:
+	return state != PlayerState.STUNNED
+
+func pickup_throwable(thing : Throwable):
+	state = PlayerState.HOLDING
+	super(thing)
 
 func _handle_throw_action() -> void:
-	# TODO
-	pass
+	_throwable.throw(_facing)
+	state = PlayerState.CHILL
+	_throwable = null
+
+# End of holding and throwing
 
 func stun_player() -> void:
 	state = PlayerState.STUNNED

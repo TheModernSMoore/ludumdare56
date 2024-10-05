@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3 uid="uid://mwwe46ufqfjd"]
+
+[ext_resource type="Script" path="res://src/scripts/actors/items/item.gd" id="1_txrfs"]
+[ext_resource type="Texture2D" uid="uid://bfjvux7lbyafk" path="res://icon.svg" id="2_7mv3u"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_0on7j"]
+radius = 16.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_tjwgd"]
+radius = 21.0238
+
+[node name="Item" type="CharacterBody2D"]
+collision_layer = 2
+script = ExtResource("1_txrfs")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("2_7mv3u")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_0on7j")
+
+[node name="HitBoxArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 4
+
+[node name="HitBox" type="CollisionShape2D" parent="HitBoxArea"]
+shape = SubResource("CircleShape2D_tjwgd")
+
+[connection signal="body_entered" from="HitBoxArea" to="." method="_on_hit_box_area_body_entered"]
