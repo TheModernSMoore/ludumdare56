@@ -41,6 +41,9 @@ scale = Vector2(0.25, 0.25)
 collision_layer = 8
 script = ExtResource("1_1anv6")
 
+[node name="HoldingSpot" type="Node2D" parent="."]
+position = Vector2(0, -72)
+
 [node name="Sprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, 4)
 scale = Vector2(4.005, 4.005)
@@ -89,5 +92,9 @@ offset_right = 56.0
 offset_bottom = -69.0
 show_percentage = false
 
+[node name="ThrowTimer" type="Timer" parent="."]
+one_shot = true
+
 [connection signal="area_entered" from="HitBoxArea" to="." method="_on_hit_box_area_area_entered"]
 [connection signal="timeout" from="TimeBeforePickup" to="." method="_on_time_before_pickup_timeout"]
+[connection signal="timeout" from="ThrowTimer" to="." method="_on_throw_timer_timeout"]

@@ -9,7 +9,7 @@ func pickup_throwable(thing : Throwable):
 	throwable = thing
 
 func _process(delta: float) -> void:
-	if throwable and _holding_spot:
+	if throwable and throwable.actor and _holding_spot:
 		throwable.actor.global_position = _holding_spot.global_position
 
 func can_pickup() -> bool:

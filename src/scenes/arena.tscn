@@ -56,16 +56,29 @@ autostart = true
 position = Vector2(5, -140)
 
 [node name="Node2D" type="Node2D" parent="Spawners"]
-position = Vector2(342, 232)
+position = Vector2(577, 426)
 
 [node name="Node2D2" type="Node2D" parent="Spawners"]
-position = Vector2(728, 230)
+position = Vector2(432, 370)
 
 [node name="Node2D3" type="Node2D" parent="Spawners"]
-position = Vector2(540, 236)
+position = Vector2(867, 700)
 
 [node name="Node2D5" type="Node2D" parent="Spawners"]
-position = Vector2(260, 144)
+position = Vector2(729, 393)
+
+[node name="StaticBody2D5" type="StaticBody2D" parent="."]
+position = Vector2(584, 402)
+scale = Vector2(2.21939, 0.131486)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D5"]
+position = Vector2(0.451263, 0.999939)
+shape = SubResource("RectangleShape2D_tsii5")
+
+[node name="Sprite2D" type="Sprite2D" parent="StaticBody2D5"]
+modulate = Color(1, 0, 1, 1)
+scale = Vector2(0.791439, 0.148631)
+texture = ExtResource("2_p6d6u")
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 position = Vector2(579, 673)
@@ -121,10 +134,12 @@ texture = ExtResource("2_p6d6u")
 [node name="Enemies" type="Node2D" parent="."]
 
 [node name="Enemy" parent="Enemies" instance=ExtResource("4_wnmrg")]
-position = Vector2(710, 374)
+position = Vector2(649, 442)
 
 [node name="Enemy2" parent="Enemies" instance=ExtResource("4_wnmrg")]
-position = Vector2(402, 406)
+position = Vector2(383, 327)
+
+[node name="Bombs" type="Node2D" parent="."]
 
 [node name="Character" parent="." instance=ExtResource("2_2eing")]
 position = Vector2(282, 561)

@@ -4,6 +4,7 @@ class_name Arena
 var points : int = 0
 
 const enemy_ref = preload("res://src/scenes/actors/enemy.tscn")
+const bomb_ref = preload("res://src/scenes/actors/items/bomb.tscn")
 
 @onready var time_label = $Time as Label
 @onready var timer = $Timer as Timer
@@ -11,6 +12,7 @@ const enemy_ref = preload("res://src/scenes/actors/enemy.tscn")
 @onready var fmod_event_emitter = $FmodEventEmitter2D as FmodEventEmitter2D
 @onready var spawners = $Spawners
 @onready var enemies = $Enemies
+@onready var bombs = $Bombs
 @onready var final_screen = $CanvasLayer
 @onready var final_score = $CanvasLayer/ColorRect/FinalScore
 
@@ -30,12 +32,15 @@ func _update_timer():
 
 
 func _on_spawn_timer_timeout() -> void:
+	var rand_idx = randi_range(0, spawners.get_child_count() - 1)
 	if enemies.get_child_count() < max_enemies:
-		print(enemies.get_child_count())
-		var rand_idx = randi_range(0, spawners.get_child_count() - 1)
 		var enemy = enemy_ref.instantiate()
 		enemy.global_position = spawners.get_child(rand_idx).global_position
 		enemies.add_child(enemy)
+	elif bombs.get_child_count() < 2:
+		var bomb = bomb_ref.instantiate()
+		bomb.global_position = spawners.get_child(rand_idx).global_position
+		bombs.add_child(bomb)
 
 func play_hit():
 	fmod_event_emitter.set_parameter("Hit", 1.0)

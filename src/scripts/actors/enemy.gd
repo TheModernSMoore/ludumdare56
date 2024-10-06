@@ -16,14 +16,16 @@ var facing : Game.Direction = Game.Direction.RIGHT
 @onready var _hitbox_area = $HitBoxArea
 @onready var _pickup_timer = $TimeBeforePickup
 @onready var _sprite = $Sprite2D
+@onready var _throw_timer = $ThrowTimer
 
-var thrower = false
+#var thrower = false
 var jumper = false
 var stabber = false
 
 func _ready():
 	_throw_area.lifetime_bar = $LifeBar
 	velocity.x = SPEED
+	_holding_spot = $HoldingSpot
 
 
 func _physics_process(delta: float) -> void:
@@ -66,7 +68,7 @@ func _on_hit_box_area_area_entered(area: Area2D) -> void:
 
 func get_hit(direction : float):
 	state = EnemyState.STUNNED
-	_sprite.scale.y *= -1
+	_sprite.scale.y = -1 * abs(_sprite.scale.y)
 	_pickup_timer.start()
 	_hitbox_area.set_deferred("monitorable", false)
 	_hitbox_area.set_deferred("monitoring", false)
@@ -74,6 +76,10 @@ func get_hit(direction : float):
 	_throw_area.active = true
 	_throw_area.can_be_picked_up = true
 	_throw_area.lifetime.start()
+	if throwable:
+		throwable.thrower = null
+		throwable = null
+	_throw_timer.stop()
 	
 
 func _on_time_before_pickup_timeout() -> void:
@@ -81,7 +87,7 @@ func _on_time_before_pickup_timeout() -> void:
 	_throw_area.set_deferred("monitoring", true)
 
 func can_pickup() -> bool:
-	return state != EnemyState.STUNNED and thrower
+	return false#state != EnemyState.STUNNED and not throwable#and thrower
 
 func do_throwable_action():
 	state = EnemyState.ACTIVE
@@ -93,3 +99,14 @@ func do_throwable_action():
 	_throw_area.set_deferred("monitorable", false)
 	_throw_area.set_deferred("monitoring", false)
 	velocity.x = SPEED * facing
+
+
+func _on_throw_timer_timeout() -> void:
+	if throwable:
+		print("YAH")
+		print(facing)
+		throwable.throw(facing)
+
+func pickup_throwable(thing : Throwable):
+	_throw_timer.start()
+	super(thing)
