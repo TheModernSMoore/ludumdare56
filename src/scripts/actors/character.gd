@@ -8,6 +8,7 @@ class_name Player
 @export var CHARGE_VELOCITY : float
 @export var charge_cooldown : float
 
+@onready var arena = get_parent() as Arena
 @onready var _hitbox_area = $HitBoxArea
 @onready var charge_timer = $ChargeTimer
 @onready var charge_cooldown_bar = $CanvasLayer/ChargeCooldownBar
@@ -63,7 +64,7 @@ func _physics_process(delta: float) -> void:
 		
 		
 		if Input.is_action_just_pressed("action"):
-			if _throwable:
+			if throwable:
 				_handle_throw_action()
 			elif state == PlayerState.CHILL or state == PlayerState.CHARGE:
 				_handle_charge_action()
@@ -131,14 +132,12 @@ func _update_cooldown(delta : float):
 
 # Holding and throwing handling
 func can_pickup() -> bool:
-	print(state != PlayerState.STUNNED)
-	print(not _throwable)
-	return state != PlayerState.STUNNED and not _throwable
+	return state != PlayerState.STUNNED and not throwable
 
 func _handle_throw_action() -> void:
-	_throwable.throw(_facing)
+	throwable.throw(_facing)
 	state = PlayerState.CHILL
-	_throwable = null
+	throwable = null
 
 # End of holding and throwing
 

@@ -1,16 +1,16 @@
 extends CharacterBody2D
 class_name Actor
 
-var _throwable : Throwable = null
+var throwable : Throwable = null
 var _holding_spot : Node2D
 @export var knockback_velocity = 400
 
 func pickup_throwable(thing : Throwable):
-	_throwable = thing
+	throwable = thing
 
 func _process(delta: float) -> void:
-	if _throwable and _holding_spot:
-		_throwable.actor.global_position = _holding_spot.global_position
+	if throwable and _holding_spot:
+		throwable.actor.global_position = _holding_spot.global_position
 
 func can_pickup() -> bool:
 	return false

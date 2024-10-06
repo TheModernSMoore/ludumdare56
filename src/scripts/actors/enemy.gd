@@ -8,6 +8,7 @@ enum EnemyState{ACTIVE, STUNNED}
 var state : EnemyState = EnemyState.ACTIVE
 var facing : Game.Direction = Game.Direction.RIGHT
 
+@onready var arena = get_parent().get_parent() as Arena
 @onready var _ray_casters = $RayCasters
 @onready var _wall_finder = $RayCasters/WallFinder
 @onready var _edge_finder = $RayCasters/EdgeFinder
@@ -44,7 +45,7 @@ func _physics_process(delta: float) -> void:
 				facing *= -1
 		
 		move_and_slide()
-
+		
 func _on_hit_box_area_area_entered(area: Area2D) -> void:
 	if area is HurtBox:
 		var body = area.get_parent()
@@ -56,9 +57,11 @@ func _on_hit_box_area_area_entered(area: Area2D) -> void:
 				get_hit(direction)
 				direction *= -0.25
 				body.get_hit(direction)
+				arena.play_hit()
 			elif body.invincible == false:
 				direction *= -1
 				body.get_hit(direction)
+				arena.play_damaged()
 
 
 func get_hit(direction : float):
@@ -69,6 +72,7 @@ func get_hit(direction : float):
 	_hitbox_area.set_deferred("monitoring", false)
 	super(direction)
 	_throw_area.active = true
+	_throw_area.can_be_picked_up = true
 	_throw_area.lifetime.start()
 	
 
@@ -81,6 +85,7 @@ func can_pickup() -> bool:
 
 func do_throwable_action():
 	state = EnemyState.ACTIVE
+	_throw_area.can_be_picked_up = false
 	_throw_area.active = false
 	_sprite.scale.y *= -1
 	_hitbox_area.set_deferred("monitorable", true)

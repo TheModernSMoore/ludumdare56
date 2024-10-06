@@ -11,11 +11,14 @@ const enemy_ref = preload("res://src/scenes/actors/enemy.tscn")
 @onready var fmod_event_emitter = $FmodEventEmitter2D as FmodEventEmitter2D
 @onready var spawners = $Spawners
 @onready var enemies = $Enemies
+@onready var final_screen = $CanvasLayer
+@onready var final_score = $CanvasLayer/ColorRect/FinalScore
 
 @export var max_enemies : int
 
 func score():
 	points += 1
+	play_scored()
 
 func _process(delta: float) -> void:
 	_update_timer()
@@ -31,5 +34,26 @@ func _on_spawn_timer_timeout() -> void:
 		print(enemies.get_child_count())
 		var rand_idx = randi_range(0, spawners.get_child_count() - 1)
 		var enemy = enemy_ref.instantiate()
-		enemy.position = spawners.get_child(rand_idx).position
+		enemy.global_position = spawners.get_child(rand_idx).global_position
 		enemies.add_child(enemy)
+
+func play_hit():
+	fmod_event_emitter.set_parameter("Hit", 1.0)
+	fmod_event_emitter.set_parameter("Hit", 0)
+
+func play_scored():
+	fmod_event_emitter.set_parameter("Scored", 1.0)
+	fmod_event_emitter.set_parameter("Scored", 0)
+
+func play_damaged():
+	fmod_event_emitter.set_parameter("Damaged", 1.0)
+	fmod_event_emitter.set_parameter("Damaged", 0)
+
+
+func _on_timer_timeout() -> void:
+	final_screen.visible = true
+	final_score.text = "You got " + str(points) + "!"
+
+
+func _on_play_again_pressed() -> void:
+	get_tree().reload_current_scene()

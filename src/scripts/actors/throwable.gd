@@ -10,6 +10,7 @@ const BOUNCE_LOSS_X : float = 250
 var active : bool = false
 var thrower : CharacterBody2D
 var cooldown_over = true
+@export var can_be_picked_up = true
 @onready var actor : CharacterBody2D = get_parent()
 @onready var cooldown = $ThrowCoolDown
 @onready var lifetime = $Lifetime
@@ -51,8 +52,7 @@ func throw(direction : Game.Direction):
 	lifetime.start()
 
 func _on_body_entered(body: Node2D) -> void:
-	if body != actor and cooldown_over and body is Actor and body.can_pickup():
-		print("RAH")
+	if body != actor and cooldown_over and body is Actor and body.can_pickup() and can_be_picked_up:
 		thrower = body
 		lifetime.stop()
 		body.pickup_throwable(self)
