@@ -1,13 +1,64 @@
-[gd_scene load_steps=5 format=3 uid="uid://clc1qkortp4ha"]
+[gd_scene load_steps=7 format=3 uid="uid://clc1qkortp4ha"]
 
 [ext_resource type="Texture2D" uid="uid://bfjvux7lbyafk" path="res://icon.svg" id="1_ojmn0"]
+[ext_resource type="Script" path="res://src/scripts/arena.gd" id="1_rtu0v"]
 [ext_resource type="PackedScene" uid="uid://bdvp7kclp3vib" path="res://src/scenes/actors/character.tscn" id="2_2eing"]
-[ext_resource type="PackedScene" uid="uid://mwwe46ufqfjd" path="res://src/scenes/actors/items/item.tscn" id="3_f3xa8"]
+[ext_resource type="PackedScene" uid="uid://3p6hwmfh5ppc" path="res://src/scenes/actors/enemy.tscn" id="4_wnmrg"]
+[ext_resource type="PackedScene" uid="uid://c72sfhj8srgnt" path="res://src/scenes/actors/basket.tscn" id="5_ifdgp"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_tsii5"]
 size = Vector2(127.978, 130)
 
 [node name="Arena" type="Node2D"]
+script = ExtResource("1_rtu0v")
+max_enemies = 5
+
+[node name="FmodBankLoader" type="FmodBankLoader" parent="."]
+bank_paths = ["res://fmodbanks/Master.strings.bank", "res://fmodbanks/Master.bank", "res://fmodbanks/Desktop/Only.bank"]
+
+[node name="FmodListener2D" type="FmodListener2D" parent="."]
+
+[node name="FmodEventEmitter2D" type="FmodEventEmitter2D" parent="."]
+event_name = "event:/Music"
+event_guid = "{965c4b6f-d5fa-48ba-84c9-d96395e7f655}"
+autoplay = true
+auto_release = true
+event_parameter/Score/id = 1778705755034765389
+event_parameter/Score/value = 0.0
+event_parameter/Score/min_value = 0.0
+event_parameter/Score/max_value = 50.0
+event_parameter/Score/default_value = 0.0
+event_parameter/Score/variant_type = 3
+
+[node name="SpawnTimer" type="Timer" parent="."]
+wait_time = 4.0
+autostart = true
+
+[node name="Spawners" type="Node2D" parent="."]
+position = Vector2(5, -140)
+
+[node name="Node2D" type="Node2D" parent="Spawners"]
+position = Vector2(342, 232)
+
+[node name="Node2D2" type="Node2D" parent="Spawners"]
+position = Vector2(728, 230)
+
+[node name="Node2D3" type="Node2D" parent="Spawners"]
+position = Vector2(540, 236)
+
+[node name="Node2D4" type="Node2D" parent="Spawners"]
+position = Vector2(816, 248)
+
+[node name="Node2D5" type="Node2D" parent="Spawners"]
+position = Vector2(260, 144)
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="Enemy" parent="Enemies" instance=ExtResource("4_wnmrg")]
+position = Vector2(710, 374)
+
+[node name="Enemy2" parent="Enemies" instance=ExtResource("4_wnmrg")]
+position = Vector2(402, 406)
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 position = Vector2(579, 673)
@@ -42,8 +93,44 @@ shape = SubResource("RectangleShape2D_tsii5")
 [node name="Sprite2D" type="Sprite2D" parent="StaticBody2D3"]
 texture = ExtResource("1_ojmn0")
 
-[node name="Character" parent="." instance=ExtResource("2_2eing")]
-position = Vector2(486, 496)
+[node name="StaticBody2D4" type="StaticBody2D" parent="."]
+position = Vector2(589, 513)
+scale = Vector2(4.21939, 0.131486)
 
-[node name="Item" parent="." instance=ExtResource("3_f3xa8")]
-position = Vector2(751, 517)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D4"]
+position = Vector2(0.451263, 0.999939)
+shape = SubResource("RectangleShape2D_tsii5")
+
+[node name="Sprite2D" type="Sprite2D" parent="StaticBody2D4"]
+texture = ExtResource("1_ojmn0")
+
+[node name="Character" parent="." instance=ExtResource("2_2eing")]
+position = Vector2(282, 561)
+
+[node name="Basket" parent="." instance=ExtResource("5_ifdgp")]
+position = Vector2(1025, 547)
+
+[node name="Basket2" parent="." instance=ExtResource("5_ifdgp")]
+position = Vector2(155, 549)
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 5.0
+autostart = true
+
+[node name="Time" type="Label" parent="."]
+offset_left = 539.0
+offset_top = 43.0
+offset_right = 660.0
+offset_bottom = 78.0
+theme_override_font_sizes/font_size = 25
+text = "Time here"
+
+[node name="Points" type="Label" parent="."]
+offset_left = 788.0
+offset_top = 43.0
+offset_right = 863.0
+offset_bottom = 78.0
+theme_override_font_sizes/font_size = 25
+text = "Points"
+
+[connection signal="timeout" from="SpawnTimer" to="." method="_on_spawn_timer_timeout"]

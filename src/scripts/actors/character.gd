@@ -1,4 +1,4 @@
-extends Thrower
+extends Actor
 class_name Player
 
 
@@ -8,13 +8,18 @@ class_name Player
 @export var CHARGE_VELOCITY : float
 @export var charge_cooldown : float
 
-@onready var hitbox = $HitBoxArea/HitBox
+@onready var _hitbox_area = $HitBoxArea
 @onready var charge_timer = $ChargeTimer
 @onready var charge_cooldown_bar = $CanvasLayer/ChargeCooldownBar
+@onready var stun_timer = $StunTimer
+@onready var i_framer_timer = $IFrameTimer
+@onready var stun_bar = $StunBar
+@onready var animation = $AnimatedSprite2D
 
 var _can_charge = true
+var invincible = false
 
-enum PlayerState{CHILL, CHARGE, HOLDING, STUNNED}
+enum PlayerState{CHILL, CHARGE, STUNNED}
 var state : PlayerState = PlayerState.CHILL
 
 var _facing : Game.Direction = Game.Direction.RIGHT
@@ -25,6 +30,23 @@ func _ready():
 	_holding_spot = $ThrowingSpot
 
 func _physics_process(delta: float) -> void:
+	match _facing:
+		Game.Direction.RIGHT:
+			animation.scale.x = abs(animation.scale.x)
+		Game.Direction.LEFT:
+			animation.scale.x = -1 * abs(animation.scale.x)
+	match state:
+		PlayerState.CHILL:
+			animation.animation = "default"
+		PlayerState.CHARGE:
+			animation.animation = "dash"
+		PlayerState.STUNNED:
+			animation.animation = "stun"
+	update_stun_bar()
+	if invincible:
+		modulate.a = 0.5
+	else:
+		modulate.a = 1
 	_update_cooldown(delta)
 	# Add the gravity.  This always happens.
 	if not is_on_floor():
@@ -32,7 +54,8 @@ func _physics_process(delta: float) -> void:
 	
 	# Check if the player is stunnned, they should not be able to do things
 	if state == PlayerState.STUNNED:
-		velocity.x = move_toward(velocity.x, 0, DECCEL)
+		if is_on_floor():
+			velocity.x = move_toward(velocity.x, 0, DECCEL)
 	else:
 		# Handle jump.
 		if Input.is_action_just_pressed("jump") and is_on_floor():
@@ -40,10 +63,10 @@ func _physics_process(delta: float) -> void:
 		
 		
 		if Input.is_action_just_pressed("action"):
-			if state == PlayerState.CHILL or state == PlayerState.CHARGE:
-				_handle_charge_action()
-			elif state == PlayerState.HOLDING:
+			if _throwable:
 				_handle_throw_action()
+			elif state == PlayerState.CHILL or state == PlayerState.CHARGE:
+				_handle_charge_action()
 		
 		var direction := Input.get_axis("left", "right")
 		if direction > 0:
@@ -65,6 +88,14 @@ func _physics_process(delta: float) -> void:
 				velocity.x = 0
 	move_and_slide()
 
+
+func update_stun_bar():
+	stun_bar.value = (stun_timer.wait_time - stun_timer.time_left)/stun_timer.wait_time * 100
+	if stun_bar.value == 100:
+		stun_bar.visible = false
+	else:
+		stun_bar.visible = true
+
 # Charge related functions
 
 func _handle_charge_action() -> void:
@@ -74,12 +105,17 @@ func _handle_charge_action() -> void:
 		charge_timer.start()
 		charge_cooldown_bar.value = 0
 	elif state == PlayerState.CHARGE:
-		_stop_charge()
+		stop_charge()
 
 func _on_charge_timer_timeout() -> void:
-	_stop_charge()
+	stop_charge()
 
-func _stop_charge():
+func charge_i_frames() -> void:
+	invincible = true
+	i_framer_timer.stop()
+	i_framer_timer.start()
+
+func stop_charge():
 	if state == PlayerState.CHARGE:
 		state = PlayerState.CHILL
 	charge_timer.stop()
@@ -95,11 +131,9 @@ func _update_cooldown(delta : float):
 
 # Holding and throwing handling
 func can_pickup() -> bool:
-	return state != PlayerState.STUNNED
-
-func pickup_throwable(thing : Throwable):
-	state = PlayerState.HOLDING
-	super(thing)
+	print(state != PlayerState.STUNNED)
+	print(not _throwable)
+	return state != PlayerState.STUNNED and not _throwable
 
 func _handle_throw_action() -> void:
 	_throwable.throw(_facing)
@@ -108,15 +142,25 @@ func _handle_throw_action() -> void:
 
 # End of holding and throwing
 
-func stun_player() -> void:
-	state = PlayerState.STUNNED
-	hitbox.disabled = true
+# Start of stun handling
 
+func get_hit(direction : float) -> void:
+	state = PlayerState.STUNNED
+	invincible = true
+	super(direction)
+	stun_timer.wait_time = abs(direction)
+	stun_timer.start()
 
 func _on_stun_timer_timeout() -> void:
 	# Give the player control again but don't let them get hit gain yet
 	state = PlayerState.CHILL
+	i_framer_timer.stop()
+	i_framer_timer.start()
+	
 
 func _on_i_frame_timer_timeout() -> void:
 	# Turns off the i frames
-	hitbox.disabled = false
+	print("ooff")
+	invincible = false
+
+# End of stun handling

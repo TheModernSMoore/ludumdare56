@@ -1,15 +1,71 @@
-[gd_scene load_steps=5 format=3 uid="uid://bdvp7kclp3vib"]
+[gd_scene load_steps=14 format=3 uid="uid://bdvp7kclp3vib"]
 
 [ext_resource type="Script" path="res://src/scripts/actors/character.gd" id="1_8dmk8"]
-[ext_resource type="Texture2D" uid="uid://bfjvux7lbyafk" path="res://icon.svg" id="2_bfgks"]
+[ext_resource type="Texture2D" uid="uid://oyle2k8pf68t" path="res://assets/seal/seal_roll.png" id="2_qgrpp"]
+[ext_resource type="Texture2D" uid="uid://k5kkx4h8qowt" path="res://assets/seal/seal_move.png" id="2_r1jfq"]
+[ext_resource type="Script" path="res://src/scripts/actors/hurt_box.gd" id="3_8ncsv"]
+[ext_resource type="Texture2D" uid="uid://gy42eetobxg6" path="res://assets/seal/seal_hit.png" id="4_7l0cj"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5p4id"]
+atlas = ExtResource("2_qgrpp")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_frcds"]
+atlas = ExtResource("2_qgrpp")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dlyxd"]
+atlas = ExtResource("2_r1jfq")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oxpwj"]
+atlas = ExtResource("2_r1jfq")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2d52s"]
+atlas = ExtResource("4_7l0cj")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_yj7gi"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5p4id")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_frcds")
+}],
+"loop": true,
+"name": &"dash",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dlyxd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oxpwj")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2d52s")
+}],
+"loop": true,
+"name": &"stun",
+"speed": 5.0
+}]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_r8hix"]
 radius = 62.0
 height = 126.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_q3ks1"]
-radius = 79.0
-height = 158.0
+radius = 84.0
+height = 168.0
 
 [node name="Character" type="CharacterBody2D"]
 scale = Vector2(0.5, 0.5)
@@ -18,38 +74,55 @@ collision_mask = 5
 script = ExtResource("1_8dmk8")
 SPEED = 300.0
 DECCEL = 250.0
-JUMP_VELOCITY = -400.0
+JUMP_VELOCITY = -500.0
 CHARGE_VELOCITY = 500.0
 charge_cooldown = 0.5
 
 [node name="ThrowingSpot" type="Node2D" parent="."]
-position = Vector2(0, -64)
+position = Vector2(0, -86)
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("2_bfgks")
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+scale = Vector2(2.26, 2.26)
+sprite_frames = SubResource("SpriteFrames_yj7gi")
+autoplay = "default"
+frame_progress = 0.278001
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CapsuleShape2D_r8hix")
 
 [node name="HitBoxArea" type="Area2D" parent="."]
+collision_layer = 4
+collision_mask = 6
+script = ExtResource("3_8ncsv")
 
 [node name="HitBox" type="CollisionShape2D" parent="HitBoxArea"]
 shape = SubResource("CapsuleShape2D_q3ks1")
 
 [node name="StunTimer" type="Timer" parent="."]
+one_shot = true
 
 [node name="IFrameTimer" type="Timer" parent="."]
-wait_time = 0.5
+one_shot = true
 
 [node name="ChargeTimer" type="Timer" parent="."]
 wait_time = 0.5
+one_shot = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="ChargeCooldownBar" type="ProgressBar" parent="CanvasLayer"]
-offset_left = 969.0
-offset_right = 1152.0
-offset_bottom = 27.0
+offset_left = 964.0
+offset_top = 608.0
+offset_right = 1147.0
+offset_bottom = 635.0
+
+[node name="StunBar" type="ProgressBar" parent="."]
+offset_left = -60.0
+offset_top = -92.0
+offset_right = 44.0
+offset_bottom = -72.0
+scale = Vector2(1.096, 1)
+show_percentage = false
 
 [connection signal="timeout" from="StunTimer" to="." method="_on_stun_timer_timeout"]
 [connection signal="timeout" from="IFrameTimer" to="." method="_on_i_frame_timer_timeout"]

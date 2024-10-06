@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3 uid="uid://d07yfxbgyxfkk"]
+
+[ext_resource type="Script" path="res://src/scripts/actors/throwable.gd" id="1_7q47n"]
+
+[node name="Throwable" type="Area2D"]
+collision_layer = 16
+collision_mask = 12
+script = ExtResource("1_7q47n")
+
+[node name="ThrowCoolDown" type="Timer" parent="."]
+wait_time = 0.5
+one_shot = true
+
+[node name="Lifetime" type="Timer" parent="."]
+wait_time = 5.0
+one_shot = true
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="timeout" from="ThrowCoolDown" to="." method="_on_throw_cool_down_timeout"]
+[connection signal="timeout" from="Lifetime" to="." method="_on_lifetime_timeout"]

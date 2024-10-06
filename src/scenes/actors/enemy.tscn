@@ -1,6 +1,92 @@
-[gd_scene load_steps=2 format=3 uid="uid://3p6hwmfh5ppc"]
+[gd_scene load_steps=11 format=3 uid="uid://3p6hwmfh5ppc"]
 
 [ext_resource type="Script" path="res://src/scripts/actors/enemy.gd" id="1_1anv6"]
+[ext_resource type="Texture2D" uid="uid://h3l3a57honu3" path="res://assets/little_guy.png" id="2_vem7e"]
+[ext_resource type="PackedScene" uid="uid://d07yfxbgyxfkk" path="res://src/scenes/actors/throwable.tscn" id="3_nqrcb"]
+[ext_resource type="Script" path="res://src/scripts/actors/hurt_box.gd" id="4_jx64v"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vu5ef"]
+atlas = ExtResource("2_vem7e")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8wyk5"]
+atlas = ExtResource("2_vem7e")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_pch0o"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vu5ef")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8wyk5")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_a7xd1"]
+radius = 64.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_o2ktt"]
+radius = 84.0952
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_rwy3a"]
+radius = 84.0
 
 [node name="Enemy" type="CharacterBody2D"]
+scale = Vector2(0.25, 0.25)
+collision_layer = 8
 script = ExtResource("1_1anv6")
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, 4)
+scale = Vector2(4.005, 4.005)
+sprite_frames = SubResource("SpriteFrames_pch0o")
+autoplay = "default"
+frame = 1
+frame_progress = 1.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_a7xd1")
+
+[node name="RayCasters" type="Node2D" parent="."]
+
+[node name="WallFinder" type="RayCast2D" parent="RayCasters"]
+rotation = 0.01032
+target_position = Vector2(147.992, -1.4943)
+
+[node name="EdgeFinder" type="RayCast2D" parent="RayCasters"]
+position = Vector2(88, 0)
+target_position = Vector2(0, 100)
+
+[node name="ThrowArea" parent="." instance=ExtResource("3_nqrcb")]
+monitoring = false
+monitorable = false
+lifetime_seconds = 5.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ThrowArea"]
+shape = SubResource("CircleShape2D_o2ktt")
+
+[node name="HitBoxArea" type="Area2D" parent="."]
+collision_layer = 4
+collision_mask = 4
+script = ExtResource("4_jx64v")
+
+[node name="HitBoxShape" type="CollisionShape2D" parent="HitBoxArea"]
+shape = SubResource("CircleShape2D_rwy3a")
+
+[node name="TimeBeforePickup" type="Timer" parent="."]
+wait_time = 0.5
+
+[node name="LifeBar" type="ProgressBar" parent="."]
+offset_left = -56.0
+offset_top = -96.0
+offset_right = 56.0
+offset_bottom = -69.0
+show_percentage = false
+
+[connection signal="area_entered" from="HitBoxArea" to="." method="_on_hit_box_area_area_entered"]
+[connection signal="timeout" from="TimeBeforePickup" to="." method="_on_time_before_pickup_timeout"]
